@@ -1,9 +1,14 @@
 #!/usr/bin/env python
-import sys, re, operator, string
+import sys
+import re
+import operator
+import string
 
 #
 # The event management substrate
 #
+
+
 class EventManager:
     def __init__(self):
         self._subscriptions = {}
@@ -23,8 +28,11 @@ class EventManager:
 #
 # The application entities
 #
+
+
 class DataStorage:
     """ Models the contents of the file """
+
     def __init__(self, event_manager):
         self._event_manager = event_manager
         self._event_manager.subscribe('load', self.load)
@@ -43,8 +51,10 @@ class DataStorage:
             self._event_manager.publish(('word', w))
         self._event_manager.publish(('eof', None))
 
+
 class StopWordFilter:
     """ Models the stop word filter """
+
     def __init__(self, event_manager):
         self._stop_words = []
         self._event_manager = event_manager
@@ -52,7 +62,7 @@ class StopWordFilter:
         self._event_manager.subscribe('word', self.is_stop_word)
 
     def load(self, event):
-        with open('../stop_words.txt') as f:
+        with open('/mnt/c/Users/Dalto/Documents/software_development/ExercisesInProgrammingStyle/exercises-in-programming-style/stop_words.txt') as f:
             self._stop_words = f.read().split(',')
         self._stop_words.extend(list(string.ascii_lowercase))
 
@@ -61,8 +71,10 @@ class StopWordFilter:
         if word not in self._stop_words:
             self._event_manager.publish(('valid_word', word))
 
+
 class WordFrequencyCounter:
     """ Keeps the word frequency data """
+
     def __init__(self, event_manager):
         self._word_freqs = {}
         self._event_manager = event_manager
@@ -77,9 +89,11 @@ class WordFrequencyCounter:
             self._word_freqs[word] = 1
 
     def print_freqs(self, event):
-        word_freqs = sorted(self._word_freqs.items(), key=operator.itemgetter(1), reverse=True)
+        word_freqs = sorted(self._word_freqs.items(),
+                            key=operator.itemgetter(1), reverse=True)
         for (w, c) in word_freqs[0:25]:
             print(w, '-', c)
+
 
 class WordFrequencyApplication:
     def __init__(self, event_manager):
@@ -95,10 +109,11 @@ class WordFrequencyApplication:
     def stop(self, event):
         self._event_manager.publish(('print', None))
 
+
 #
 # The main function
 #
 em = EventManager()
 DataStorage(em), StopWordFilter(em), WordFrequencyCounter(em)
 WordFrequencyApplication(em)
-em.publish(('run', sys.argv[1]))
+em.publish(('run', '/mnt/c/Users/Dalto/Documents/software_development/ExercisesInProgrammingStyle/exercises-in-programming-style/pride-and-prejudice.txt'))
